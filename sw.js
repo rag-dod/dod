@@ -5,27 +5,39 @@
    installed. Bump CACHE_VERSION whenever you push a new build so
    returning users get the update instead of a stale cached copy. */
 
-const CACHE_VERSION = 'dod-tracker-v1';
+const CACHE_VERSION = 'dod-tracker-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-72.png',
-  './icons/icon-96.png',
-  './icons/icon-128.png',
-  './icons/icon-144.png',
-  './icons/icon-152.png',
-  './icons/icon-192.png',
-  './icons/icon-384.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-192.png',
-  './icons/icon-maskable-512.png'
+  './icon-72.png',
+  './icon-96.png',
+  './icon-128.png',
+  './icon-144.png',
+  './icon-152.png',
+  './icon-192.png',
+  './icon-384.png',
+  './icon-512.png',
+  './icon-maskable-192.png',
+  './icon-maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_VERSION)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then((cache) => {
+        // cache.addAll() fails ENTIRELY if even one URL 404s (e.g. an
+        // icon that didn't upload correctly), which can leave the whole
+        // service worker stuck uninstalled. Cache each file independently
+        // instead, so one bad path doesn't take down the rest.
+        return Promise.all(
+          APP_SHELL.map((url) =>
+            cache.add(url).catch((err) => {
+              console.warn('SW: failed to cache', url, err);
+            })
+          )
+        );
+      })
       .then(() => self.skipWaiting())
   );
 });
