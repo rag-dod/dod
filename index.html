@@ -394,6 +394,31 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
 .ex-tile.dragging-enabled{ cursor:grab; }
 .ex-tile.dragging-enabled:active{ cursor:grabbing; opacity:.7; }
 </style>
+<script>
+  // Temporary on-screen error catcher — shows any JS error directly in
+  // the page so it's visible on a phone with no DevTools/cable needed.
+  // Safe to remove once debugging is done.
+  window.addEventListener('error', function(e){
+    var box = document.getElementById('debug-error-box');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'debug-error-box';
+      box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c00;color:#fff;font-family:monospace;font-size:11px;padding:10px;white-space:pre-wrap;max-height:40vh;overflow:auto;';
+      document.documentElement.appendChild(box);
+    }
+    box.textContent += 'ERROR: ' + e.message + '\n  at ' + e.filename + ':' + e.lineno + ':' + e.colno + '\n\n';
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var box = document.getElementById('debug-error-box');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'debug-error-box';
+      box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c00;color:#fff;font-family:monospace;font-size:11px;padding:10px;white-space:pre-wrap;max-height:40vh;overflow:auto;';
+      document.documentElement.appendChild(box);
+    }
+    box.textContent += 'UNHANDLED PROMISE REJECTION: ' + (e.reason && e.reason.message ? e.reason.message : e.reason) + '\n\n';
+  });
+</script>
 </head>
 <body>
 
