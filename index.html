@@ -41,7 +41,7 @@
     position:relative; overflow:hidden;
   }
 
-  .scroll{ position:relative; height:100%; padding:calc(env(safe-area-inset-top) + 20px) 16px 90px; display:none; flex-direction:column; gap:14px; overflow-y:auto; width:320px; margin:0 auto; }
+  .scroll{ position:relative; height:100%; padding:calc(env(safe-area-inset-top) + 20px) 16px 90px; display:none; flex-direction:column; gap:14px; overflow-y:auto; width:100%; max-width:480px; margin:0 auto; }
   .scroll.active{ display:flex; }
   .scroll::-webkit-scrollbar{ display:none; }
 
@@ -55,19 +55,24 @@
   .wk-kcal-pill{ background:#1D1D1D; border-radius:999px; padding:6px 12px; display:flex; align-items:center; gap:6px; color:#fff; font-size:11px; font-weight:700; }
   .wk-kcal-pill b{ font-family:var(--font-d); color:var(--lime); }
 
-  .chrono-strip{ background:var(--lime); border-radius:22px; padding:12px 14px; color:var(--ink); display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:35; }
+  .chrono-strip{ background:var(--lime); border-radius:22px; padding:12px 14px; color:var(--ink); position:sticky; top:0; z-index:35; }
   .chrono-strip.is-stuck{ border-radius:0; }
   .chrono-strip::before{ content:""; position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:0; background:var(--lime); z-index:-1; transition:none; }
   .chrono-strip.is-stuck::before{ width:100vw; height:100%; top:calc(-1 * (env(safe-area-inset-top) + 20px)); height:calc(100% + env(safe-area-inset-top) + 20px); }
+  .chrono-loop{ width:100%; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; border-radius:inherit; }
+  .chrono-loop::-webkit-scrollbar{ display:none; }
+  .chrono-track{ display:flex; width:100%; }
+  .chrono-row{ flex:0 0 100%; width:100%; scroll-snap-align:start; display:flex; align-items:center; gap:10px; }
   .chrono-stepper{ display:flex; flex-direction:column; border-radius:8px; overflow:hidden; background:rgba(0,0,0,.12); flex-shrink:0; }
-  .chrono-btn{ width:32px;height:22px; display:flex;align-items:center;justify-content:center; flex-shrink:0; cursor:pointer; font-size:14px; line-height:1; }
+  .chrono-btn{ width:32px;height:22px; display:flex;align-items:center;justify-content:center; flex-shrink:0; cursor:pointer; font-size:14px; line-height:1; background:none; border:none; color:inherit; font-family:inherit; }
   .chrono-btn:first-child{ border-bottom:1px solid rgba(0,0,0,.15); }
-  .chrono-mid{ flex:1; text-align:center; display:flex; align-items:center; justify-content:center; }
-  .chrono-time{ font-family:var(--font-d); font-weight:800; font-size:60px; letter-spacing:.5px; line-height:1; }
-  .chrono-tabs{ display:flex; justify-content:center; gap:6px; margin-top:2px; }
-  .chrono-tabs span{ font-size:8.5px; font-weight:700; padding:2px 7px; border-radius:999px; opacity:.55; cursor:pointer; }
-  .chrono-tabs span.on{ background:var(--ink); color:var(--lime); opacity:1; }
+  .chrono-mid{ flex:1; text-align:center; display:flex; align-items:center; justify-content:center; min-width:0; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; }
+  .chrono-time{ font-family:var(--font-d); font-weight:800; font-size:60px; letter-spacing:.5px; line-height:1; white-space:nowrap; }
+  .chrono-dots{ display:flex; justify-content:center; gap:6px; margin-top:4px; }
+  .chrono-dots span{ width:5px; height:5px; border-radius:50%; background:rgba(0,0,0,.2); transition:background .15s; }
+  .chrono-dots span.on{ background:var(--ink); }
   .chrono-reset{ width:30px;height:30px;border-radius:50%; background:rgba(0,0,0,.12); display:flex;align-items:center;justify-content:center; flex-shrink:0; cursor:pointer; }
+  .chrono-icon-btn{ width:30px;height:30px;border-radius:50%; background:rgba(0,0,0,.12); display:flex;align-items:center;justify-content:center; flex-shrink:0; cursor:pointer; }
 
   .filter-row{ display:flex; background:#1D1D1D; border-radius:999px; padding:4px; gap:4px; }
   .filter-row div{ flex:1; text-align:center; padding:8px 0; font-size:11.5px; font-weight:600; color:#8a8a8a; border-radius:999px; cursor:pointer; }
@@ -161,7 +166,7 @@
 
   .fw-overlay{ position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:50; display:none; align-items:flex-end; justify-content:center; }
   .fw-overlay.open{ display:flex; }
-  .fw-sheet{ width:320px; max-height:88%; overflow-y:auto; background:#1A1A1A; border-radius:26px 26px 0 0; padding:20px 18px 26px; display:flex; flex-direction:column; gap:14px; }
+  .fw-sheet{ width:100%; max-width:480px; max-height:88%; overflow-y:auto; background:#1A1A1A; border-radius:26px 26px 0 0; padding:20px 18px 26px; display:flex; flex-direction:column; gap:14px; }
   .fw-handle{ width:36px; height:4px; background:#3a3a3a; border-radius:3px; margin:0 auto; }
   .fw-head{ display:flex; align-items:center; gap:10px; }
   .fw-head-icon{ width:38px;height:38px;border-radius:11px; background:rgba(215,242,60,.13); color:var(--lime); display:flex;align-items:center;justify-content:center; }
@@ -440,16 +445,36 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
       </div>
     </div>
 
-    <div class="chrono-strip">
-      <div class="chrono-stepper">
-        <div class="chrono-btn" onclick="chronoStep(1)">+</div>
-        <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
-      </div>
-      <div class="chrono-mid"><div class="chrono-time" id="chrono-time-train">01:30</div></div>
-      <div class="chrono-reset" onclick="chronoReset()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+    <div class="chrono-strip" id="chrono-strip-train">
+      <div class="chrono-loop" id="chrono-loop-train">
+        <div class="chrono-track" id="chrono-track-train">
+          <div class="chrono-row" data-mode="rest">
+            <div class="chrono-stepper">
+              <div class="chrono-btn" onclick="chronoStep(1)">+</div>
+              <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
+            </div>
+            <div class="chrono-mid" onclick="toggleRestFromModule()">
+              <div><div class="chrono-time" id="chrono-time-train">01:30</div><div class="chrono-dots"><span class="on"></span><span></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="chronoReset()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+          <div class="chrono-row" data-mode="stopwatch">
+            <div class="chrono-icon-btn" onclick="lapStopwatch(1)" title="Lap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="chrono-mid" onclick="toggleSW(1)">
+              <div><div class="chrono-time" id="sw-time-train">00:00</div><div class="chrono-dots"><span></span><span class="on"></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="resetStopwatch(1)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="filter-row">
       <div class="on" onclick="setTrainTab('log', this)">Log</div>
@@ -672,16 +697,36 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
       </div>
     </div>
 
-    <div class="chrono-strip">
-      <div class="chrono-stepper">
-        <div class="chrono-btn" onclick="chronoStep(1)">+</div>
-        <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
-      </div>
-      <div class="chrono-mid"><div class="chrono-time" id="chrono-time-cardio">01:30</div></div>
-      <div class="chrono-reset" onclick="chronoReset()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+    <div class="chrono-strip" id="chrono-strip-cardio">
+      <div class="chrono-loop" id="chrono-loop-cardio">
+        <div class="chrono-track" id="chrono-track-cardio">
+          <div class="chrono-row" data-mode="rest">
+            <div class="chrono-stepper">
+              <div class="chrono-btn" onclick="chronoStep(1)">+</div>
+              <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
+            </div>
+            <div class="chrono-mid" onclick="toggleRestFromModule()">
+              <div><div class="chrono-time" id="chrono-time-cardio">01:30</div><div class="chrono-dots"><span class="on"></span><span></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="chronoReset()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+          <div class="chrono-row" data-mode="stopwatch">
+            <div class="chrono-icon-btn" onclick="lapStopwatch(1)" title="Lap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="chrono-mid" onclick="toggleSW(1)">
+              <div><div class="chrono-time" id="sw-time-cardio">00:00</div><div class="chrono-dots"><span></span><span class="on"></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="resetStopwatch(1)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="filter-row">
       <div class="on" onclick="setCardioTab('log', this)">Log</div>
@@ -864,16 +909,36 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
       </div>
     </div>
 
-    <div class="chrono-strip">
-      <div class="chrono-stepper">
-        <div class="chrono-btn" onclick="chronoStep(1)">+</div>
-        <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
-      </div>
-      <div class="chrono-mid"><div class="chrono-time" id="chrono-time-splits">01:30</div></div>
-      <div class="chrono-reset" onclick="chronoReset()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+    <div class="chrono-strip" id="chrono-strip-splits">
+      <div class="chrono-loop" id="chrono-loop-splits">
+        <div class="chrono-track" id="chrono-track-splits">
+          <div class="chrono-row" data-mode="rest">
+            <div class="chrono-stepper">
+              <div class="chrono-btn" onclick="chronoStep(1)">+</div>
+              <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
+            </div>
+            <div class="chrono-mid" onclick="toggleRestFromModule()">
+              <div><div class="chrono-time" id="chrono-time-splits">01:30</div><div class="chrono-dots"><span class="on"></span><span></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="chronoReset()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+          <div class="chrono-row" data-mode="stopwatch">
+            <div class="chrono-icon-btn" onclick="lapStopwatch(1)" title="Lap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="chrono-mid" onclick="toggleSW(1)">
+              <div><div class="chrono-time" id="sw-time-splits">00:00</div><div class="chrono-dots"><span></span><span class="on"></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="resetStopwatch(1)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="filter-row" id="splits-subnav">
       <div class="on" onclick="switchSplitsSubtab('splits', this)">Splits</div>
@@ -1029,7 +1094,7 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
         </div>
         <div class="settings-row">
           <div><div class="settings-row-label">Lock UI</div><div class="settings-row-sub">Hides rename, add, and edit controls in the Splits tab</div></div>
-          <label class="set-toggle"><input type="checkbox" id="opt-lockUI" onchange="setBoolSetting('lockUI', this.checked); renderSplitPage();"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
+          <label class="set-toggle"><input type="checkbox" checked id="opt-lockUI" onchange="setBoolSetting('lockUI', this.checked); renderSplitPage();"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
         </div>
         <div class="settings-row">
           <div><div class="settings-row-label">Single Card Expand</div><div class="settings-row-sub">Only one exercise card can be open at a time</div></div>
@@ -1053,16 +1118,36 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
       </div>
     </div>
 
-    <div class="chrono-strip">
-      <div class="chrono-stepper">
-        <div class="chrono-btn" onclick="chronoStep(1)">+</div>
-        <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
-      </div>
-      <div class="chrono-mid"><div class="chrono-time" id="chrono-time-profile">01:30</div></div>
-      <div class="chrono-reset" onclick="chronoReset()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+    <div class="chrono-strip" id="chrono-strip-profile">
+      <div class="chrono-loop" id="chrono-loop-profile">
+        <div class="chrono-track" id="chrono-track-profile">
+          <div class="chrono-row" data-mode="rest">
+            <div class="chrono-stepper">
+              <div class="chrono-btn" onclick="chronoStep(1)">+</div>
+              <div class="chrono-btn" onclick="chronoStep(-1)">&minus;</div>
+            </div>
+            <div class="chrono-mid" onclick="toggleRestFromModule()">
+              <div><div class="chrono-time" id="chrono-time-profile">01:30</div><div class="chrono-dots"><span class="on"></span><span></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="chronoReset()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+          <div class="chrono-row" data-mode="stopwatch">
+            <div class="chrono-icon-btn" onclick="lapStopwatch(1)" title="Lap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="chrono-mid" onclick="toggleSW(1)">
+              <div><div class="chrono-time" id="sw-time-profile">00:00</div><div class="chrono-dots"><span></span><span class="on"></span></div></div>
+            </div>
+            <div class="chrono-reset" onclick="resetStopwatch(1)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17.65 6.35A8 8 0 1 0 19.9 14"/><polyline points="20 4 20 10 14 10"/></svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="info-strip pink">
       <div class="avatar-init">J</div>
@@ -1201,7 +1286,7 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
     <div class="settings-card">
       <div class="settings-row">
         <div><div class="settings-row-label">Keep Screen Awake</div><div class="settings-row-sub">Prevents the screen from sleeping during a workout</div></div>
-        <label class="set-toggle"><input type="checkbox" checked id="opt-keepAwake" onchange="setBoolSetting('keepAwake', this.checked); toggleWakeLock(this.checked);"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
+        <label class="set-toggle"><input type="checkbox" id="opt-keepAwake" onchange="setBoolSetting('keepAwake', this.checked); toggleWakeLock(this.checked);"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
       </div>
     </div>
 
@@ -1212,7 +1297,7 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
     <div class="settings-card">
       <div class="settings-row">
         <div><div class="settings-row-label danger">Enable Rage Mode</div><div class="settings-row-sub">Unlocks the skull button in the nav bar</div></div>
-        <label class="set-toggle"><input type="checkbox" checked id="rage-mode-toggle" onchange="toggleRageNavButton(this.checked)"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
+        <label class="set-toggle"><input type="checkbox" id="rage-mode-toggle" onchange="toggleRageNavButton(this.checked)"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
       </div>
       <div class="settings-row">
         <div><div class="settings-row-label">Rage Sound</div><div class="settings-row-sub">Beep every few seconds of the rest timer</div></div>
@@ -1242,22 +1327,9 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
 
     <div class="section-lbl">Display</div>
     <div class="settings-card">
-      <div class="settings-row" style="display:block;">
-        <div style="margin-bottom:10px;"><div class="settings-row-label">Accent color</div><div class="settings-row-sub">Colors checkmarks, active tab, and the timer</div></div>
-        <div class="chip-row" id="accent-dot-row">
-          <div class="accent-dot on" style="background:var(--lime);" onclick="setAccentColor('lime', this)"></div>
-          <div class="accent-dot" style="background:var(--lavender);" onclick="setAccentColor('lavender', this)"></div>
-          <div class="accent-dot" style="background:var(--blush);" onclick="setAccentColor('blush', this)"></div>
-          <div class="accent-dot" style="background:#38bdf8;" onclick="setAccentColor('blue', this)"></div>
-        </div>
-      </div>
       <div class="settings-row">
         <div><div class="settings-row-label">Pitch Black Mode</div><div class="settings-row-sub">True OLED black, for dark rooms and battery saving</div></div>
         <label class="set-toggle"><input type="checkbox" id="opt-pitchBlack" onchange="setPitchBlack(this.checked)"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
-      </div>
-      <div class="settings-row">
-        <div><div class="settings-row-label">Show Quotes Marquee</div><div class="settings-row-sub">Scrolling motivational quotes below the header</div></div>
-        <label class="set-toggle"><input type="checkbox" checked id="opt-showQuotesMarquee" onchange="setBoolSetting('showQuotesMarquee', this.checked)"><span class="set-toggle-track"></span><span class="set-toggle-thumb"></span></label>
       </div>
     </div>
 
@@ -1316,7 +1388,7 @@ body.pitch-black .nav-bar{ background:#000 !important; border-top-color:rgba(255
     <div class="nav-item" data-tab="cardio" onclick="goTab('cardio', this)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
     </div>
-    <div class="nav-item" data-tab="rage" id="rage-nav-btn" onclick="applyRageMode(!document.body.classList.contains('rage-mode')); state.settings.rageMode=document.body.classList.contains('rage-mode'); saveState();">
+    <div class="nav-item" data-tab="rage" id="rage-nav-btn" style="display:none;" onclick="applyRageMode(!document.body.classList.contains('rage-mode')); state.settings.rageMode=document.body.classList.contains('rage-mode'); saveState();">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="10" rx="8" ry="9"/><rect x="6" y="15" width="12" height="7" rx="2"/></svg>
     </div>
     <div class="nav-item" data-tab="splits" onclick="goTab('splits', this)">
@@ -1807,12 +1879,11 @@ let state = {
     showNotes: true,
     showPRCalc: true,
     compactButtons: false,
-    lockUI: false,
+    lockUI: true,
     singleExpand: true,
-    showQuotesMarquee: true,
-    keepAwake: true,
+    keepAwake: false,
     pitchBlack: false,
-    rageModeEnabled: true,
+    rageModeEnabled: false,
     rageMode: false,
     rageFlashOnPR: true,
     rageAutoMode: true,
@@ -1829,7 +1900,7 @@ let state = {
   }
 };
 
-let restTimers = { 1: { running: false, end: 0, interval: null, lastDuration: 90 } };
+let restTimers = { 1: { running: false, end: 0, interval: null } };
 let reorderMode = {workout: false, split: false, cardio: false};
 let cardioExpandedCards = {};
 let displayName = 'Not Set';
@@ -1891,8 +1962,8 @@ function resetAppState(){
       useRestTimer: true, timerMerged: false, barbellWeight: 20,
       plates: [25, 20, 15, 10, 5, 2.5, 1.25], simpleMode: true,
       showPlateMath: true, showWarmupGen: true, showNotes: true, showPRCalc: true,
-      compactButtons: false, lockUI: false, singleExpand: true, showQuotesMarquee: true,
-      keepAwake: true, pitchBlack: false, rageModeEnabled: true, rageMode: false, rageFlashOnPR: true,
+      compactButtons: false, lockUI: true, singleExpand: true,
+      keepAwake: false, pitchBlack: false, rageModeEnabled: false, rageMode: false, rageFlashOnPR: true,
       rageAutoMode: true, rageAutoTriggerPR: true, rageSound: true, rageVibration: true,
       rageHeaderText: false, rageBeepInterval: 10, accentColor:'lime',
       waterReminder: { enabled: false, intervalMinutes: 60 },
@@ -1935,12 +2006,11 @@ function applyLoadedData(parsed) {
   if (s.showNotes === undefined) s.showNotes = true;
   if (s.showPRCalc === undefined) s.showPRCalc = true;
   if (s.compactButtons === undefined) s.compactButtons = false;
-  if (s.keepAwake === undefined) s.keepAwake = true;
-  if (s.lockUI === undefined) s.lockUI = false;
+  if (s.keepAwake === undefined) s.keepAwake = false;
+  if (s.lockUI === undefined) s.lockUI = true;
   if (s.singleExpand === undefined) s.singleExpand = true;
-  if (s.showQuotesMarquee === undefined) s.showQuotesMarquee = true;
   if (s.pitchBlack === undefined) s.pitchBlack = false;
-  if (s.rageModeEnabled === undefined) s.rageModeEnabled = true;
+  if (s.rageModeEnabled === undefined) s.rageModeEnabled = false;
   if (s.rageMode === undefined) s.rageMode = false;
   if (s.rageFlashOnPR === undefined) s.rageFlashOnPR = true;
   if (s.rageAutoMode === undefined) s.rageAutoMode = true;
@@ -1988,11 +2058,10 @@ function ensureWorkout(){
 }
 
 function fmt(ms){
-  let cs=Math.floor((ms%1000)/10);
   let totalSec=Math.floor(ms/1000);
   let m=Math.floor(totalSec/60);
   let s=totalSec%60;
-  return `${String(m).padStart(2,'0')}<span class="chrono-colon">:</span>${String(s).padStart(2,'0')}<span class="sw-ms">.${String(cs).padStart(2,'0')}</span>`;
+  return `${String(m).padStart(2,'0')}<span class="chrono-colon">:</span>${String(s).padStart(2,'0')}`;
 }
 function parseRestTime(restStr, defaultTime){
   if(!restStr) return defaultTime;
@@ -2935,7 +3004,6 @@ function applyCardioDateDirect(val){
 
 function renderCardioPage(){
   updateCardioDateChip();
-  showLiveTrackerDiagnostic();
   let dayKey = dateKey(state.date);
   let sessions = state.cardioLog[dayKey] || [];
 
@@ -3877,6 +3945,21 @@ function goTab(tab, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
   if(el) el.classList.add('on');
   renderCurrentTab();
+  syncChronoScrollPosition(tab);
+}
+function syncChronoScrollPosition(tab){
+  // Inactive tabs are display:none, so their chrono-loop has zero width
+  // until shown — re-apply the current rest/stopwatch scroll position
+  // now that the tab is visible, rather than only doing this once at boot.
+  requestAnimationFrame(()=>{
+    let loop = document.getElementById('chrono-loop-'+tab);
+    let strip = document.getElementById('chrono-strip-'+tab);
+    if(!loop || !strip) return;
+    let w = loop.clientWidth;
+    if(!w) return;
+    let onStopwatch = !!strip.querySelector('.chrono-dots span:nth-child(2).on');
+    loop.scrollLeft = onStopwatch ? w : 0;
+  });
 }
 function renderCurrentTab(){
   if(currentTab==='train') renderExerciseList();
@@ -3944,40 +4027,167 @@ function toggleRageNavButton(enabled){
   saveState();
 }
 
-/* ---- Chrono strip (shared rest timer display, mirrored across tabs) ---- */
+/* ---- Chrono strip (two swipeable panels: Rest Timer + Stopwatch),
+   mirrored across all 4 tabs. Ported from the original app's swipe/
+   scroll-snap mechanic, adapted to per-tab element ID suffixes. ---- */
+const CHRONO_TABS = ['train','cardio','splits','profile'];
+let restPresetSeconds = 90;
+
 function renderChrono(){
-  let seconds = restTimers[1].running ? Math.max(0, Math.round((restTimers[1].end - Date.now())/1000)) : restTimers[1].lastDuration;
+  let seconds = restTimers[1].running ? Math.max(0, Math.round((restTimers[1].end - Date.now())/1000)) : restPresetSeconds;
   let txt = fmtSec(seconds);
-  ['train','cardio','splits','profile'].forEach(t=>{
+  CHRONO_TABS.forEach(t=>{
     const el = document.getElementById('chrono-time-'+t);
     if(el) el.textContent = txt;
   });
 }
 function chronoStep(dir){
-  let newDuration = Math.max(0, restTimers[1].lastDuration + dir*15);
-  restTimers[1].lastDuration = newDuration;
-  if(restTimers[1].running) restTimers[1].end = Date.now() + newDuration*1000;
+  let rt = restTimers[1];
+  if(rt.running){
+    adjustRestTimer(dir*30);
+  } else {
+    setRestPreset(restPresetSeconds + dir*30);
+  }
+}
+function setRestPreset(sec){
+  if(sec < 5) sec = 5;
+  restPresetSeconds = sec;
+  renderChrono();
+}
+function adjustRestTimer(deltaSeconds){
+  let rt = restTimers[1];
+  if(!rt.running) return;
+  rt.end += deltaSeconds*1000;
   renderChrono();
 }
 function chronoReset(){
-  restTimers[1].running = false;
-  clearInterval(restTimers[1].interval);
-  restTimers[1].lastDuration = 90;
-  renderChrono();
+  let rt = restTimers[1];
+  if(rt.running){ rt.running = false; clearInterval(rt.interval); }
+  setRestPreset(90);
+}
+function toggleRestFromModule(){
+  let rt = restTimers[1];
+  if(rt.running){
+    rt.running = false;
+    clearInterval(rt.interval);
+    setRestPreset(restPresetSeconds);
+  } else {
+    startRestTimer(restPresetSeconds);
+  }
+}
+function resetRestFromModule(){
+  let rt = restTimers[1];
+  if(rt.running){ rt.running = false; clearInterval(rt.interval); }
+  setRestPreset(restPresetSeconds);
 }
 function startRestTimer(seconds){
   seconds = seconds || 90;
   if(state.settings.useRestTimer === false) return;
   let rt = restTimers[1];
-  rt.lastDuration = seconds;
+  restPresetSeconds = seconds;
   rt.end = Date.now() + seconds*1000;
   rt.running = true;
   clearInterval(rt.interval);
   rt.interval = setInterval(()=>{
-    if(Date.now() >= rt.end){ rt.running = false; clearInterval(rt.interval); }
+    if(Date.now() >= rt.end){
+      rt.running = false;
+      clearInterval(rt.interval);
+      setRestPreset(restPresetSeconds);
+      return;
+    }
     renderChrono();
   }, 250);
   renderChrono();
+}
+
+/* ---- Stopwatch (profile-scoped to profile 1, matching the single-user
+   design of this app) ---- */
+function renderSWDisplay(){
+  let sw = state.sw[1];
+  let total = sw.elapsed + (sw.running ? (Date.now() - sw.start) : 0);
+  CHRONO_TABS.forEach(t=>{
+    const el = document.getElementById('sw-time-'+t);
+    if(el) el.innerHTML = fmt(total);
+  });
+}
+function toggleSW(n){
+  let sw = state.sw[n];
+  if(!sw.laps) sw.laps = [];
+  if(sw.running){
+    clearInterval(sw.interval);
+    sw.elapsed += Date.now() - sw.start;
+    sw.running = false;
+  } else {
+    sw.start = Date.now();
+    sw.running = true;
+    sw.interval = setInterval(renderSWDisplay, 250);
+  }
+  renderSWDisplay();
+}
+function lapStopwatch(n){
+  let sw = state.sw[n];
+  if(!sw.laps) sw.laps = [];
+  if(!sw.running && sw.elapsed === 0) return;
+  let total = sw.elapsed + (sw.running ? (Date.now() - sw.start) : 0);
+  let prevTotal = sw.laps.length > 0 ? sw.laps[sw.laps.length-1].total : 0;
+  sw.laps.push({ total, split: total - prevTotal, num: sw.laps.length + 1 });
+}
+function resetStopwatch(n){
+  let sw = state.sw[n];
+  if(sw.running){ clearInterval(sw.interval); sw.running = false; }
+  sw.elapsed = 0;
+  sw.laps = [];
+  renderSWDisplay();
+}
+
+/* ---- Swipe/scroll-snap tracking: keeps each tab's chrono bar's mode
+   dots in sync with which panel the user swiped to, using the same
+   "wait until scroll position stabilizes" technique as the original
+   app so a fast fling doesn't get sampled mid-animation. ---- */
+function initChronoSwipe(suffix){
+  let loop = document.getElementById('chrono-loop-'+suffix);
+  if(!loop || loop.dataset.bound) return;
+  loop.dataset.bound = '1';
+
+  let strip = document.getElementById('chrono-strip-'+suffix);
+  let pollTimer = null, lastPos = null;
+
+  function settle(){
+    let w = loop.clientWidth;
+    if(!w) return;
+    let idx = Math.round(loop.scrollLeft / w);
+    strip.querySelectorAll('.chrono-dots').forEach(dotsRow=>{
+      let dots = dotsRow.querySelectorAll('span');
+      dots.forEach((d,i)=>d.classList.toggle('on', i===idx));
+    });
+  }
+  function waitForRest(){
+    clearInterval(pollTimer);
+    lastPos = null;
+    let stableTicks = 0;
+    pollTimer = setInterval(()=>{
+      let pos = loop.scrollLeft;
+      if(lastPos !== null && Math.abs(pos-lastPos) < 0.5){
+        stableTicks++;
+        if(stableTicks >= 2){ clearInterval(pollTimer); pollTimer = null; settle(); }
+      } else {
+        stableTicks = 0;
+      }
+      lastPos = pos;
+    }, 50);
+  }
+  loop.addEventListener('scroll', waitForRest, { passive:true });
+  loop.addEventListener('scrollend', ()=>{ clearInterval(pollTimer); pollTimer=null; settle(); }, { passive:true });
+  window.addEventListener('resize', ()=>{
+    let w = loop.clientWidth;
+    if(w){
+      let onStopwatch = strip.querySelector('.chrono-dots span:nth-child(2).on');
+      loop.scrollLeft = onStopwatch ? w : 0;
+    }
+  });
+}
+function initAllChronoSwipes(){
+  CHRONO_TABS.forEach(t => initChronoSwipe(t));
 }
 
 /* ---- Rage mode nav button already wired via applyRageMode in logic-02-train.js ---- */
@@ -4067,6 +4277,9 @@ async function init(){
   renderSplitSelectorHidden();
   goTab(currentTab, document.querySelector(`.nav-item[data-tab="${currentTab}"]`));
   renderChrono();
+  renderSWDisplay();
+  initAllChronoSwipes();
+  syncChronoScrollPosition(currentTab);
   applyRageMode(state.settings.rageMode);
   applyRageModeVisibility(state.settings.rageModeEnabled !== false);
   syncSettingsUIFromState();
@@ -4178,14 +4391,6 @@ function setNumSetting(key, val){
     restartRageBeepLoopIfActive();
   }
 }
-function setAccentColor(name, el){
-  state.settings.accentColor = name;
-  document.querySelectorAll('#accent-dot-row .accent-dot').forEach(d=>d.classList.remove('on'));
-  if(el) el.classList.add('on');
-  const map = { lime:'var(--lime)', lavender:'var(--lavender)', blush:'var(--blush)', blue:'#38bdf8' };
-  document.documentElement.style.setProperty('--lime', map[name] || map.lime);
-  saveState();
-}
 function setPitchBlack(on){
   state.settings.pitchBlack = on;
   document.body.classList.toggle('pitch-black', !!on);
@@ -4201,7 +4406,7 @@ function syncSettingsUIFromState(){
     'opt-reorderCardio':'reorderCardio','opt-reorderSplit':'reorderSplit','opt-lockUI':'lockUI',
     'opt-keepAwake':'keepAwake','opt-rageSound':'rageSound','opt-rageFlashOnPR':'rageFlashOnPR',
     'opt-rageAutoMode':'rageAutoMode','opt-rageVibration':'rageVibration','opt-rageHeaderText':'rageHeaderText',
-    'opt-pitchBlack':'pitchBlack','opt-showQuotesMarquee':'showQuotesMarquee',
+    'opt-pitchBlack':'pitchBlack',
     'single-expand-toggle':'singleExpand', 'rage-mode-toggle':'rageModeEnabled'
   };
   for(let elId in map){
